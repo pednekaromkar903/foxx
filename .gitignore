@@ -37,3 +37,12 @@ Thumbs.db
 # Misc
 coverage/
 .cache/
+
+# Old project copies
+atomberg-portal/
+atomberg_portal/
+goal-portal/
+
+# Generated Prisma client
+packages/database/prisma/client/
+packages/database/node_modules/.prisma/

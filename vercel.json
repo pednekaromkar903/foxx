@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd apps/web && next build",
+  "buildCommand": "cd packages/database && npx prisma generate && cd ../../apps/web && next build",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "installCommand": "pnpm install --no-frozen-lockfile"

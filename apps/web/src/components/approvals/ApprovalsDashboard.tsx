@@ -59,7 +59,7 @@ export default function ApprovalsDashboard() {
     }
   };
 
-  const role = user?.role;
+  const role = user?.role as string;
 
   const getColumns = () => {
     if (role === "MANAGER") {

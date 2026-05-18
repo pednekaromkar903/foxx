@@ -87,9 +87,7 @@ export async function generateMonthlyReport(managerId?: string): Promise<Problem
     where.integration = { user: { managerId } };
   }
 
-  const monthlyEmails = await prisma.complaintEmail.findMany({} );
-    where
-  });
+  const monthlyEmails = await prisma.complaintEmail.findMany({ where });
 
   // Compare with previous month
   const prevStart = new Date(startDate);

@@ -29,7 +29,8 @@ export async function generateWeeklyReport(managerId?: string): Promise<ProblemR
 
   // Categorize and analyze
   const categories = emails.reduce((acc, e) => {
-    acc[e.category] = (acc[e.category] || 0) + 1;
+    const key = e.category ?? 'UNKNOWN';
+    acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 

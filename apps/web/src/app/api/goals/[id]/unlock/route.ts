@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const updated = await prisma.goal.update({
       where: { id: id },
-      data: { status: "ADMIN_UNLOCKED" },
+      data: { status: ('ADMIN_UNLOCKED' as unknown as GoalStatus) },
     });
 
     await Promise.all([

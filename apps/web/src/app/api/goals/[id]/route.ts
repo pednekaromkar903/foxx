@@ -65,7 +65,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (existing.status === ('APPROVED_LOCKED' as GoalStatus)) {
       if (session.user.role === "ADMIN" && body.action === "unlock") {
-        const updated = await prisma.goal.update({ where: { id: id }, data: { status: "ADMIN_UNLOCKED" } });
+        const updated = await prisma.goal.update({ where: { id: id }, data: { status: ('ADMIN_UNLOCKED' as unknown as GoalStatus) } });
         await createAuditLog({ entityType: "GOAL", entityId: id, fieldName: "status", oldValue: "APPROVED_LOCKED", newValue: "ADMIN_UNLOCKED", changedById: session.user.id });
         return NextResponse.json({ ...updated, deadline: updated.deadline?.toISOString() ?? null });
       } else {

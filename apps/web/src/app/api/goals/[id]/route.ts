@@ -93,12 +93,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (target !== undefined && target !== existing.target) changes.target = [String(existing.target), String(target)];
     if (weightage !== undefined && weightage !== existing.weightage) changes.weightage = [String(existing.weightage), String(weightage)];
 
-    const isManagerEdit = (session.user.role === "MANAGER" || session.user.role === "ADMIN") && existing.status === "SUBMITTED";
+    const isManagerEdit = (session.user.role === "MANAGER" || session.user.role === "ADMIN") && existing.status === GoalStatus.SUBMITTED_TO_MANAGER;
     const statusChangedToRework = isManagerEdit && (changes.target || changes.weightage);
     if (statusChangedToRework) {
-      changes.status = ["SUBMITTED", "RETURNED_FOR_REWORK"];
-    } else if (existing.status === "RETURNED_FOR_REWORK" && session.user.role === "EMPLOYEE") {
-      changes.status = ["RETURNED_FOR_REWORK", "DRAFT"];
+      changes.status = [GoalStatus.SUBMITTED_TO_MANAGER, GoalStatus.RETURNED_FOR_REWORK];
+    } else if (existing.status === GoalStatus.RETURNED_FOR_REWORK && session.user.role === "EMPLOYEE") {
+      changes.status = [GoalStatus.RETURNED_FOR_REWORK, GoalStatus.DRAFT];
     }
 
     const updated = await prisma.goal.update({

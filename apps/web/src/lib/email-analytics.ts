@@ -22,7 +22,7 @@ export async function generateWeeklyReport(managerId?: string): Promise<ProblemR
     where.integration = { user: { managerId } };
   }
 
-  const emails = await prisma.email.findMany({
+  const emails = await prisma.complaintEmail.findMany({
     where,
     orderBy: { sentAt: 'desc' }
   });
@@ -87,7 +87,7 @@ export async function generateMonthlyReport(managerId?: string): Promise<Problem
     where.integration = { user: { managerId } };
   }
 
-  const monthlyEmails = await prisma.email.findMany({
+  const monthlyEmails = await prisma.complaintEmail.findMany({} );
     where
   });
 
@@ -102,7 +102,7 @@ export async function generateMonthlyReport(managerId?: string): Promise<Problem
     prevWhere.integration = { user: { managerId } };
   }
 
-  const prevEmails = await prisma.email.findMany({
+  const prevEmails = await prisma.complaintEmail.findMany({
     where: prevWhere
   });
 

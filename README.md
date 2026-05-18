@@ -1,30 +1,54 @@
-# Atomberg Goal Portal — AI-Powered Performance Management
-Built for AtomQuest Hackathon 2026
+# PerformX Goal Portal
 
-## Architecture
-- Frontend: Next.js 14 (App Router) + TypeScript + Tailwind + shadcn/ui
-- Backend: Express + TypeScript
-- Database: PostgreSQL + Prisma
-- Cache: Redis
+PerformX is a modern, enterprise-grade goal tracking portal built with Next.js 15, Prisma, PostgreSQL, NextAuth, and Tailwind CSS. It features automated progress calculations, hierarchical role-based access, shared department goals, and an AI-powered insights chatbot.
 
-For a complete architectural overview and Mermaid diagrams (showing our Next.js -> Express -> Prisma -> Postgres stack, Ollama integration, and Email Intelligence Pipeline), please refer to the [ARCHITECTURE.md](./ARCHITECTURE.md) file.
+## Setup Steps
 
-## Setup
-1. docker-compose up -d
-2. npm install
-3. npm run db:push
-4. npm run db:seed
-5. npm run dev
+1. **Install Dependencies**
+   Ensure you have `pnpm` installed, then run:
+   ```bash
+   pnpm install
+   ```
 
-## Demo Credentials
-- admin@atomberg.com / password123 (ADMIN)
-- manager1@atomberg.com / password123 (MANAGER)
-- employee1@atomberg.com / password123 (EMPLOYEE)
+2. **Start Database**
+   Ensure Docker is running and spin up the local PostgreSQL database:
+   ```bash
+   docker-compose up -d
+   ```
 
-## Deployment (Vercel)
-To deploy the Next.js frontend to Vercel:
-1. Ensure the `NEXT_PUBLIC_API_URL` environment variable is set to your production Express backend URL in Vercel project settings.
-2. The monorepo setup dictates setting the root directory to `apps/web`.
-3. The build command is natively picked up by Vercel (`npm run build`).
+3. **Generate Prisma Client & Seed Data**
+   Prepare your database schema and seed the initial demo data:
+   ```bash
+   pnpm db:generate
+   pnpm db:push
+   pnpm db:seed
+   ```
 
-# atomquest_goal_portal
+4. **Run the Development Server**
+   Start the application:
+   ```bash
+   pnpm dev
+   ```
+
+5. **Start Local AI (Ollama)**
+   To enable the Chatbot, make sure Ollama is running locally:
+   ```bash
+   ollama run tinyllama
+   ```
+
+## Demo Logins
+
+The application is pre-seeded with the following roles:
+
+- **Admin Account**
+  Email: `admin@atomberg.com`
+  Password: `Admin@123`
+
+- **Manager Account**
+  Email: `manager@atomberg.com`
+  Password: `Manager@123`
+
+- **Employee Account**
+  Email: `amit@atomberg.com`
+  Password: `Employee@123`
+# foxx

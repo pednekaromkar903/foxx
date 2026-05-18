@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@atomberg/database";
+import { prisma, GoalStatus } from "@atomberg/database";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     // 1. Returned Goals (for Employee)
     if (role === "EMPLOYEE") {
       const returnedGoals = await prisma.goal.findMany({
-        where: { employeeId: userId, status: "RETURNED_FOR_REWORK" },
+        where: { employeeId: userId, status: GoalStatus.RETURNED_FOR_REWORK },
         select: { id: true, title: true, updatedAt: true }
       });
       for (const g of returnedGoals) {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     if (role === "MANAGER" || role === "ADMIN") {
       const pendingGoals = await prisma.goal.findMany({
         where: { 
-          status: "SUBMITTED",
+          status: GoalStatus.SUBMITTED_TO_MANAGER,
           employee: {
             OR: [
               { managerId: userId },
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
           lte: sevenDaysFromNow,
           gte: new Date()
         },
-        status: { not: "COMPLETED" }
+        status: { not: GoalStatus.COMPLETED }
       },
       select: { id: true, title: true, deadline: true }
     });

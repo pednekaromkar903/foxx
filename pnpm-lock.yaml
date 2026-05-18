@@ -26,6 +26,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@prisma/client':
+        specifier: ^5.22.0
+        version: 5.22.0(prisma@5.22.0)
+      axios:
+        specifier: ^1.16.1
+        version: 1.16.1
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3

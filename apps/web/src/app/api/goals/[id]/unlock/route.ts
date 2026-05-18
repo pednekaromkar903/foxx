@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@atomberg/database";
+import { prisma, GoalStatus } from "@atomberg/database";
 import { createAuditLog } from "@/lib/audit";
 
 // POST /api/goals/:id/unlock  — ADMIN only

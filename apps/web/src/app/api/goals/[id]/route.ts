@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@atomberg/database";
+import { prisma, GoalStatus } from "@atomberg/database";
 import { createAuditLog } from "@/lib/audit";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -63,7 +63,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    if (existing.status === "APPROVED_LOCKED") {
+    if (existing.status === ('APPROVED_LOCKED' as GoalStatus)) {
       if (session.user.role === "ADMIN" && body.action === "unlock") {
         const updated = await prisma.goal.update({ where: { id: id }, data: { status: "ADMIN_UNLOCKED" } });
         await createAuditLog({ entityType: "GOAL", entityId: id, fieldName: "status", oldValue: "APPROVED_LOCKED", newValue: "ADMIN_UNLOCKED", changedById: session.user.id });

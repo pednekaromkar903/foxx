@@ -6,19 +6,20 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "npm --prefix ./apps/api run dev",
-    "dev:web": "npm --prefix ./apps/web run dev",
-    "db:push": "npm --prefix ./packages/database run db:push",
-    "db:seed": "npm --prefix ./packages/database run db:seed",
-    "db:generate": "npm --prefix ./packages/database run db:generate",
-    "db:studio": "npm --prefix ./packages/database run db:studio",
-    "install:all": "npm install && npm --prefix ./apps/api install && npm --prefix ./apps/web install && npm --prefix ./packages/database install",
-    "postinstall": "npm run db:generate"
+    "dev": "pnpm --filter web dev",
+    "dev:web": "pnpm --filter web dev",
+    "db:push": "pnpm --filter @atomberg/database db:push",
+    "db:seed": "pnpm --filter @atomberg/database db:seed",
+    "db:generate": "pnpm --filter @atomberg/database db:generate",
+    "db:studio": "pnpm --filter @atomberg/database db:studio",
+    "postinstall": "pnpm run db:generate",
+    "prepare": "pnpm --filter @atomberg/database db:generate && pnpm --filter @atomberg/database build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "prisma": "^5.10.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.0",
     "typescript": "^5.3.3"
   }
 }

@@ -6,6 +6,7 @@ interface AtombergLogoProps {
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
   variant?: 'light' | 'dark';
+  className?: string;
 }
 
 const sizes = {
@@ -14,12 +15,12 @@ const sizes = {
   lg: { icon: 28, box: 'h-12 w-12', text: 'text-lg' },
 };
 
-export function AtombergLogo({ size = 'md', showText = true, variant = 'dark' }: AtombergLogoProps) {
+export function AtombergLogo({ size = 'md', showText = true, variant = 'dark', className = "" }: AtombergLogoProps) {
   const s = sizes[size];
   const isLight = variant === 'light';
 
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <span
         className={`${s.box} inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-atomberg-gold to-atomberg-gold-dark shadow-lg shadow-atomberg-gold/20`}
       >

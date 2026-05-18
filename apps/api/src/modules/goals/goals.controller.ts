@@ -4,6 +4,38 @@ import { cacheGet, cacheSet, cacheDel } from '../../lib/redis';
 import { AuthRequest, rbacFilter } from '../../middleware/auth';
 import { z } from 'zod';
 
+// Helpers to map between legacy API values and current DB enum values
+const legacyToDbStatus = (s?: string) => {
+  switch (s) {
+    case 'NOT_STARTED': return 'DRAFT';
+    case 'PENDING': return 'SUBMITTED_TO_MANAGER';
+    case 'ON_TRACK': return 'MANAGER_APPROVED';
+    default: return s;
+  }
+};
+const dbToLegacyStatus = (s?: string) => {
+  switch (s) {
+    case 'DRAFT': return 'NOT_STARTED';
+    case 'SUBMITTED_TO_MANAGER': return 'PENDING';
+    case 'MANAGER_APPROVED': return 'ON_TRACK';
+    default: return s;
+  }
+};
+const mapUoM = (u: string) => {
+  switch (u) {
+    case 'MIN': return 'NUMERIC_MIN';
+    case 'MAX': return 'NUMERIC_MAX';
+    case 'TIMELINE': return 'TIMELINE';
+    case 'ZERO': return 'ZERO_BASED';
+    default: return u;
+  }
+};
+const shapeGoalForResponse = (g: any) => ({
+  ...g,
+  targetValue: (g as any).target ?? (g as any).targetValue,
+  status: dbToLegacyStatus(g.status)
+});
+
 const createGoalSchema = z.object({
   title: z.string().min(5).max(200),
   description: z.string().optional(),
@@ -20,7 +52,7 @@ const updateGoalSchema = z.object({
   description: z.string().optional(),
   targetValue: z.number().nonnegative().optional(),
   weightage: z.number().min(10).max(100).optional(),
-  status: z.enum(['NOT_STARTED', 'ON_TRACK', 'COMPLETED', 'PENDING']).optional(),
+  status: z.string().optional(),
 });
 
 export const getGoals = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -39,8 +71,9 @@ export const getGoals = async (req: AuthRequest, res: Response, next: NextFuncti
       },
       orderBy: { createdAt: 'desc' }
     });
-    await cacheSet(cacheKey, { goals }, 120);
-    res.json({ success: true, goals });
+    const shaped = goals.map(shapeGoalForResponse);
+    await cacheSet(cacheKey, { goals: shaped }, 120);
+    res.json({ success: true, goals: shaped });
   } catch (error) {
     next(error);
   }
@@ -72,14 +105,21 @@ export const createGoal = async (req: AuthRequest, res: Response, next: NextFunc
 
     const goal = await prisma.goal.create({
       data: { 
-        ...(data as any), 
-        employee: { connect: { id: userId } }, 
-        status: 'NOT_STARTED' 
+        title: data.title,
+        description: data.description,
+        thrustArea: data.thrustArea,
+        uomType: mapUoM(data.uomType),
+        target: data.targetValue,
+        weightage: data.weightage,
+        categoryType: data.categoryType,
+        channelType: (data as any).channelType,
+        employee: { connect: { id: userId } },
+        status: 'DRAFT'
       }
     });
 
     await cacheDel(`goals:${userId}:${req.user!.role}`);
-    res.status(201).json({ success: true, goal });
+    res.status(201).json({ success: true, goal: shapeGoalForResponse(goal) });
   } catch (error) {
     next(error);
   }
@@ -103,12 +143,12 @@ export const updateGoal = async (req: AuthRequest, res: Response, next: NextFunc
 
     // Audit Trail for locked goals
     if (existing.lockedAt && (data.title || data.targetValue !== undefined || data.weightage !== undefined)) {
-      const auditEntries = [];
+      const auditEntries: any[] = [];
       if (data.title && data.title !== existing.title) {
         auditEntries.push({ field: 'title', old: existing.title, new: data.title });
       }
-      if (data.targetValue !== undefined && Number(data.targetValue) !== Number(existing.targetValue)) {
-        auditEntries.push({ field: 'targetValue', old: String(existing.targetValue), new: String(data.targetValue) });
+      if (data.targetValue !== undefined && Number(data.targetValue) !== Number(existing.target)) {
+        auditEntries.push({ field: 'target', old: String(existing.target), new: String(data.targetValue) });
       }
       if (data.weightage !== undefined && data.weightage !== existing.weightage) {
         auditEntries.push({ field: 'weightage', old: String(existing.weightage), new: String(data.weightage) });
@@ -153,13 +193,20 @@ export const updateGoal = async (req: AuthRequest, res: Response, next: NextFunc
       }
     }
 
+    const updateData: any = {};
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.targetValue !== undefined) updateData.target = data.targetValue;
+    if (data.weightage !== undefined) updateData.weightage = data.weightage;
+    if (data.status !== undefined) updateData.status = legacyToDbStatus(data.status as string) as any;
+
     const updated = await prisma.goal.update({
       where: { id },
-      data: { ...data } as any
+      data: updateData
     });
 
     await cacheDel(`goals:${existing.employeeId}:${req.user!.role}`);
-    res.json({ success: true, goal: updated });
+    res.json({ success: true, goal: shapeGoalForResponse(updated) });
   } catch (error) {
     next(error);
   }
@@ -189,10 +236,10 @@ export const submitGoal = async (req: AuthRequest, res: Response, next: NextFunc
 
     const updated = await prisma.goal.update({
       where: { id },
-      data: { status: 'PENDING' }
+      data: { status: 'SUBMITTED_TO_MANAGER' }
     });
 
-    res.json({ success: true, goal: updated });
+    res.json({ success: true, goal: shapeGoalForResponse(updated) });
   } catch (error) {
     next(error);
   }
@@ -211,12 +258,12 @@ export const approveGoal = async (req: AuthRequest, res: Response, next: NextFun
     if (!goal) return res.status(404).json({ success: false, message: 'Goal not found or not your direct report' });
 
     const updateData: any = {
-      status: 'ON_TRACK',
+      status: 'MANAGER_APPROVED',
       lockedAt: new Date(),
       approvedBy: managerId,
       approvedAt: new Date()
     };
-    if (targetValue !== undefined) updateData.targetValue = targetValue;
+    if (targetValue !== undefined) updateData.target = targetValue;
     if (weightage !== undefined) {
       const weightSum = await prisma.goal.aggregate({
         where: { employeeId: goal.employeeId, id: { not: id } },
@@ -243,13 +290,13 @@ export const approveGoal = async (req: AuthRequest, res: Response, next: NextFun
         changedBy: managerId,
         fieldName: 'status',
         oldValue: goal.status,
-        newValue: 'ON_TRACK',
+        newValue: 'MANAGER_APPROVED',
         actionType: 'APPROVAL',
         ipAddress: req.ip || 'unknown'
       }
     });
 
-    res.json({ success: true, goal: updated });
+    res.json({ success: true, goal: shapeGoalForResponse(updated) });
   } catch (error) {
     next(error);
   }
@@ -269,10 +316,10 @@ export const rejectGoal = async (req: AuthRequest, res: Response, next: NextFunc
 
     const updated = await prisma.goal.update({
       where: { id },
-      data: { status: 'NOT_STARTED' }
+      data: { status: 'DRAFT' }
     });
 
-    res.json({ success: true, goal: updated, reworkComment: comment });
+    res.json({ success: true, goal: shapeGoalForResponse(updated), reworkComment: comment });
   } catch (error) {
     next(error);
   }
@@ -286,7 +333,7 @@ export const adminUnlock = async (req: AuthRequest, res: Response, next: NextFun
 
     const goal = await prisma.goal.update({
       where: { id },
-      data: { lockedAt: null, status: 'NOT_STARTED' }
+      data: { lockedAt: null, status: 'DRAFT' }
     });
 
     await prisma.auditLog.create({
@@ -301,7 +348,7 @@ export const adminUnlock = async (req: AuthRequest, res: Response, next: NextFun
       }
     });
 
-    res.json({ success: true, goal, unlockReason: reason });
+    res.json({ success: true, goal: shapeGoalForResponse(goal), unlockReason: reason });
   } catch (error) {
     next(error);
   }
@@ -319,12 +366,12 @@ export const createSharedGoal = async (req: AuthRequest, res: Response, next: Ne
         title,
         description,
         thrustArea,
-        uomType,
-        targetValue,
+        uomType: mapUoM(uomType),
+        target: targetValue,
         categoryType,
         isShared: true,
         weightage: 0, // Template weightage
-        status: 'ON_TRACK',
+        status: 'MANAGER_APPROVED',
         lockedAt: new Date()
       }
     });
@@ -337,19 +384,19 @@ export const createSharedGoal = async (req: AuthRequest, res: Response, next: Ne
             title,
             description,
             thrustArea,
-            uomType,
-            targetValue,
+            uomType: mapUoM(uomType),
+            target: targetValue,
             categoryType,
             isShared: true,
             parentGoalId: templateGoal.id,
             weightage: 10,
-            status: 'NOT_STARTED'
+            status: 'DRAFT'
           }
         });
       })
     );
 
-    res.status(201).json({ success: true, templateId: templateGoal.id, goals, count: goals.length });
+    res.status(201).json({ success: true, templateId: templateGoal.id, goals: goals.map(shapeGoalForResponse), count: goals.length });
   } catch (error) {
     next(error);
   }

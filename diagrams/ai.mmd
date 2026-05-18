@@ -1,0 +1,13 @@
+flowchart TD
+  UserMsg[User message from UI]
+  ChatWidget --> UserMsg
+  UserMsg --> NextAPI_ollama[Next.js /api/ollama (proxy)] 
+  UserMsg --> ExpressAI[/api/v1/ai/query]
+  ExpressAI --> ChatService[ChatService / nl-query.engine]
+  ChatService --> PrismaClient
+  ChatService --> AIProvider{Local Ollama or Gemini}
+  AIProvider -->|local| Ollama
+  AIProvider -->|cloud| Gemini
+  AIResponse --> ChatService
+  ChatService --> ExpressAPI
+  ExpressAPI --> UI

@@ -28,24 +28,18 @@ export function Sidebar({ collapsed: propCollapsed, setCollapsed: propSetCollaps
   const role = user?.role;
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/goals', label: 'Goals', icon: Target, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/goals/new', label: 'Create Goal', icon: CheckCircle, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/check-in', label: 'Check-in', icon: CheckCircle, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/manager/team', label: 'Team', icon: Users, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/manager/checkins', label: 'Check-ins', icon: MessageSquare, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/reports', label: 'Reports', icon: FileText, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/calendar', label: 'Calendar', icon: Calendar, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/chat', label: 'Intelligence', icon: Sparkles, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/email/dashboard', label: 'Email Intelligence', icon: Mail, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/admin/shared-goals', label: 'Shared Goals', icon: Users, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/innovation', label: 'Innovation Hub', icon: Lightbulb, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/tech-radar', label: 'Tech Radar', icon: Zap, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/connect', label: 'DB Connect', icon: Database, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/intelligence/goals', label: 'HR Goals', icon: Target, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/schema', label: 'Schema', icon: Table2, roles: ['MANAGER', 'ADMIN'] },
-    { href: '/admin/cycles', label: 'Cycles', icon: BarChart3, roles: ['ADMIN'] },
-    { href: '/admin/audit', label: 'Audit Trail', icon: Shield, roles: ['ADMIN'] },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/goals', label: 'My Goals', icon: Target, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/manager/approvals', label: 'Approval Queue', icon: CheckCircle, roles: ['MANAGER', 'ADMIN', 'HR'] },
+    { href: '/tech-radar', label: 'Tech Radar', icon: Zap, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/email/dashboard', label: 'Complaint Intel', icon: Mail, roles: ['MANAGER', 'ADMIN', 'HR'] },
+    { href: '/innovation', label: 'Innovation Hub', icon: Lightbulb, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/manager/team', label: 'Team', icon: Users, roles: ['MANAGER', 'ADMIN', 'HR'] },
+    { href: '/manager/checkins', label: 'Check-ins', icon: MessageSquare, roles: ['MANAGER', 'ADMIN', 'HR'] },
+    { href: '/reports', label: 'Reports', icon: FileText, roles: ['MANAGER', 'ADMIN', 'HR'] },
+    { href: '/calendar', label: 'Calendar', icon: Calendar, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/chat', label: 'Intelligence', icon: Sparkles, roles: ['EMPLOYEE', 'MANAGER', 'ADMIN', 'HR'] },
+    { href: '/admin/audit', label: 'Audit Trail', icon: Shield, roles: ['ADMIN', 'HR'] },
   ];
 
   const filteredNav = navItems.filter(item => item.roles.includes(role || 'EMPLOYEE'));

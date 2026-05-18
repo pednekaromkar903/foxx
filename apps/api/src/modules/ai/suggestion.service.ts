@@ -7,7 +7,7 @@ export class SuggestionService {
     // Manager suggestions
     if (role === 'MANAGER') {
       const pendingApprovals = await prisma.goal.count({
-        where: { employee: { managerId: userId }, status: 'PENDING' }
+        where: { employee: { managerId: userId }, status: 'SUBMITTED_TO_MANAGER' }
       });
       if (pendingApprovals > 0) {
         suggestions.push(`📋 You have ${pendingApprovals} goal(s) pending approval from your team.`);
@@ -43,7 +43,7 @@ export class SuggestionService {
       }
 
       const pendingSubmit = await prisma.goal.count({
-        where: { employeeId: userId, status: 'NOT_STARTED' }
+        where: { employeeId: userId, status: 'DRAFT' }
       });
       if (pendingSubmit > 0 && totalWeight === 100) {
         suggestions.push(`📤 You have ${pendingSubmit} goal(s) ready to submit for manager approval.`);
@@ -54,7 +54,7 @@ export class SuggestionService {
     if (role === 'ADMIN') {
       const totalUsers = await prisma.user.count();
       const totalGoals = await prisma.goal.count();
-      const pendingApprovals = await prisma.goal.count({ where: { status: 'PENDING' } });
+      const pendingApprovals = await prisma.goal.count({ where: { status: 'SUBMITTED_TO_MANAGER' } });
 
       suggestions.push(`🏢 Organization Overview: ${totalUsers} users, ${totalGoals} goals tracked.`);
       if (pendingApprovals > 0) {

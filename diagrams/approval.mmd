@@ -1,0 +1,23 @@
+flowchart LR
+  Employee[Employee creates goal (DRAFT)]
+  Submit[Submit to Manager (SUBMITTED_TO_MANAGER)]
+  Manager[Manager reviews]
+  ManagerApprove[Manager APPROVE => MANAGER_APPROVED]
+  ManagerReturn[Manager RETURN => RETURNED_FOR_REWORK]
+  Forward[Manager FORWARD => SENT_TO_ADMIN]
+  Admin[Admin reviews]
+  AdminApprove[Admin APPROVE => ADMIN_APPROVED]
+  HR[HR reviews if SENT_TO_HR]
+  Complete[Completed => COMPLETED]
+
+  Employee --> Submit
+  Submit --> Manager
+  Manager -->|approve| ManagerApprove
+  Manager -->|return| ManagerReturn
+  Manager -->|forward| Forward
+  ManagerApprove --> Forward
+  Forward --> Admin
+  Admin -->|approve| AdminApprove
+  AdminApprove --> HR
+  HR -->|approve| Complete
+  ManagerReturn --> Employee

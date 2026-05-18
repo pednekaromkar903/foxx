@@ -9,46 +9,62 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        atomberg: {
-          black: "#0a0a0a",
-          charcoal: "#141414",
-          slate: "#1c1c1e",
-          gold: "#fdb913",
-          "gold-light": "#ffc933",
-          "gold-dark": "#e5a50f",
-          white: "#ffffff",
-          muted: "#9ca3af",
+        blue: {
+          50:  "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
         },
+        brand: {
+          50:  "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          400: "#60a5fa",
+          500: "#0066FF",
+          600: "#0052CC",
+          700: "#003D99",
+          neon: "#00D4FF",
+        },
+        success:  "#00C853",
+        warning:  "#FFB300",
+        danger:   "#FF1744",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        atomberg: "0 8px 32px rgba(0,0,0,0.24), 0 0 0 1px rgba(253,185,19,0.08)",
-        "atomberg-lg": "0 24px 48px rgba(0,0,0,0.32)",
+        card: "0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08)",
+        "card-hover": "0 4px 12px 0 rgb(0 0 0 / 0.12)",
+        "blue-glow": "0 0 16px rgba(0, 102, 255, 0.25)",
       },
       animation: {
-        "pulse-gold": "pulse-gold 2s ease-in-out infinite",
-        "slide-up": "slide-up 0.35s ease-out",
-        "fade-in": "fade-in 0.5s ease-out",
-        "spin-slow": "spin 3s linear infinite",
+        "fade-in": "fadeIn 0.2s ease-out",
+        "slide-up": "slideUp 0.25s ease-out",
+        "pulse-blue": "pulseBlue 2s ease-in-out infinite",
       },
       keyframes: {
-        "pulse-gold": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(253, 185, 19, 0.4)" },
-          "50%": { boxShadow: "0 0 0 12px rgba(253, 185, 19, 0)" },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
-        "slide-up": {
+        slideUp: {
           "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        pulseBlue: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(0, 102, 255, 0.4)" },
+          "50%": { boxShadow: "0 0 0 8px rgba(0, 102, 255, 0)" },
         },
       },
     },
   },
   plugins: [],
 };
+
 export default config;

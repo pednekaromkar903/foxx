@@ -1,0 +1,17 @@
+graph TD
+  subgraph Cloud
+    Vercel(Vercel)
+    CDN[CDN / Edge]
+  end
+
+  subgraph On-Prem / Local
+    DevMachine[Developer Machine]
+    DockerPostgres[Postgres (docker-compose)]
+    OllamaLocal[Ollama local]
+  end
+
+  DevMachine --> DockerPostgres
+  DevMachine --> OllamaLocal
+  DevMachine --> Vercel
+  Vercel --> CDN
+  CDN --> NextApp[apps/web build output]

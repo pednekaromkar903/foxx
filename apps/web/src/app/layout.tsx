@@ -10,10 +10,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Atomberg Goal Portal — AI-Powered Performance Management",
-  description: "Enterprise Goal Setting & Tracking Portal for Atomberg Technologies. Built for AtomQuest Hackathon 2026.",
-  keywords: ["Atomberg", "Goal Management", "Performance Tracking", "AI Analytics", "Hackathon"],
+  title: "PerformX — Goal Setting & Performance Tracking Portal",
+  description: "Enterprise-grade Goal Setting, Approval Workflows, and Performance Tracking for Atomberg Technologies.",
+  keywords: ["PerformX", "Goal Management", "Performance Tracking", "Atomberg", "AtomQuest 2026"],
 };
+
+import Chatbot from "@/components/Chatbot";
+import { Providers } from "@/components/Providers";
 
 export default function RootLayout({
   children,
@@ -23,8 +26,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className={`${inter.className} antialiased`}>
-        <ErrorBoundary>{children}</ErrorBoundary>
-        <Toaster position="top-right" richColors closeButton />
+        <Providers>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+          <Chatbot />
+          <Toaster position="top-right" richColors closeButton />
+        </Providers>
       </body>
     </html>
   );

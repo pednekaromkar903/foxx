@@ -1,0 +1,17 @@
+flowchart LR
+  MailProvider[Gmail / Outlook]
+  SyncRoute[/apps/web /api/email/sync]
+  BackendEmailAPI[/api/v1/email/sync]
+  EmailIntegration[EmailIntegration record]
+  ComplaintEmail[ComplaintEmail row]
+  EmailClassifier[emailClassifier service]
+  ComplaintInsight[ComplaintInsight row]
+  Dashboard[UI Inbox / Analytics]
+
+  MailProvider --> SyncRoute
+  SyncRoute --> BackendEmailAPI
+  BackendEmailAPI --> EmailIntegration
+  BackendEmailAPI --> ComplaintEmail
+  ComplaintEmail --> EmailClassifier
+  EmailClassifier --> ComplaintInsight
+  ComplaintInsight --> Dashboard

@@ -1,0 +1,11 @@
+erDiagram
+  USER ||--o{ GOAL : owns
+  USER ||--o{ APPROVAL : makes
+  GOAL ||--o{ QUARTERLY_UPDATE : has
+  GOAL ||--o{ APPROVAL : has
+  USER ||--o{ EMAIL_INTEGRATION : owns
+  EMAIL_INTEGRATION ||--o{ COMPLAINT_EMAIL : contains
+  COMPLAINT_EMAIL ||--o{ COMPLAINT_INSIGHT : has
+  PRODUCT ||--o{ COMPLAINT_EMAIL : reported_in
+  COMPETITOR ||--o{ PRODUCT : makes
+  TECH_RADAR_ITEM }o--|| USER : addedBy

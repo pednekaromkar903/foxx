@@ -1,0 +1,36 @@
+flowchart LR
+  Browser[User Browser]
+  subgraph Frontend
+    NextApp[Next.js App (apps/web)]
+    NextAPI[Next.js Serverless API (/app/api/*)]
+    UI[React Components & Pages]
+  end
+
+  subgraph Backend
+    ExpressAPI[Express API (apps/api) /api/v1/*]
+    AIService[AI modules: ai.service, chat.service]
+    EmailService[Email analytics & classifier]
+    Redis[Redis Cache]
+    PrismaClient[Prisma Client (@atomberg/database)]
+  end
+
+  DB[(Postgres DB)]
+  Ollama[Ollama LLM (local)]
+  Gemini[Google Gemini API]
+  ExternalMail[Mail Providers (Gmail/Outlook)]
+  Vercel[Vercel Hosting]
+
+  Browser --> UI
+  UI -->|calls| NextAPI
+  NextAPI -->|proxy / orchestrates| ExpressAPI
+  UI -->|direct| ExpressAPI
+  ExpressAPI --> PrismaClient
+  PrismaClient --> DB
+  ExpressAPI --> Redis
+  ExpressAPI --> AIService
+  AIService -->|local| Ollama
+  AIService -->|cloud| Gemini
+  ExpressAPI --> EmailService
+  EmailService --> ExternalMail
+  Vercel --> NextApp
+  Vercel --> NextAPI

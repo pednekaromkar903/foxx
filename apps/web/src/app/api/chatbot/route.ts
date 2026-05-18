@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@atomberg/database';
+import { prisma, GoalStatus } from '@atomberg/database';
 import { calculateProgress, UoMType } from '@/lib/progress';
 import { atombergContext } from '@/lib/company-context';
 import { generateWeeklyReport, generateMonthlyReport } from '@/lib/email-analytics';
@@ -401,8 +401,8 @@ export async function POST(req: NextRequest) {
       }
 
       const totalGoals = dept.users.reduce((sum, u) => sum + u.goals.length, 0);
-      const completedGoals = dept.users.reduce((sum, u) => sum + u.goals.filter(g => g.status === 'APPROVED_LOCKED').length, 0);
-      const inProgress = dept.users.reduce((sum, u) => sum + u.goals.filter(g => g.status === 'APPROVED_LOCKED' || g.status === 'SUBMITTED').length, 0); // Simplified status check
+      const completedGoals = dept.users.reduce((sum, u) => sum + u.goals.filter(g => g.status === GoalStatus.APPROVED_LOCKED).length, 0);
+      const inProgress = dept.users.reduce((sum, u) => sum + u.goals.filter(g => g.status === GoalStatus.APPROVED_LOCKED || g.status === GoalStatus.SUBMITTED).length, 0); // Simplified status check
       
       const allProgress = dept.users.flatMap(u => u.goals.map(g => g.updates[0] ? calculateProgress(g.uomType as UoMType, g.target, g.updates[0].achievement || 0) : 0));
       const avgProgress = allProgress.length > 0 ? (allProgress.reduce((a,b) => a+b, 0) / allProgress.length).toFixed(1) : '0.0';

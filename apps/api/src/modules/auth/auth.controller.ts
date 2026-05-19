@@ -18,11 +18,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       include: { department: true, manager: true }
     });
 
-    if (!user || !user.isActive) {
+    if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+    const isValid = await bcrypt.compare(password, user.password || '');
     if (!isValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }

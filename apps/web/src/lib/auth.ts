@@ -30,9 +30,16 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) return null;
+        console.log(`[DEBUG] User lookup for ${credentials.email}:`, !!user);
+
+        if (!user || !user.password) {
+          console.log(`[DEBUG] User check failed: !user=${!user}, !user.password=${!user?.password}`);
+          return null;
+        }
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
+        console.log(`[DEBUG] Password check for ${credentials.email}:`, isValid);
+        
         if (!isValid) return null;
 
         return {

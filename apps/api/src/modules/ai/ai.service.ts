@@ -46,15 +46,15 @@ export class AIService {
         where: whereClause,
         include: {
           employee: { select: { name: true, email: true, department: { select: { name: true } } } },
-          checkIns: { orderBy: { checkInDate: 'desc' }, take: 1 }
+          updates: { orderBy: { updatedAt: 'desc' }, take: 1 }
         }
       });
 
-      // Filter for truly behind (score < 0.7 or no checkin and not started)
+      // Filter for truly behind (score < 0.7 or no update and not started)
       const behind = goals.filter(g => {
-        const latest = g.checkIns[0];
+        const latest = g.updates[0];
         if (!latest) return g.status === 'NOT_STARTED';
-        return Number(latest.computedScore) < 0.7;
+        return Number(latest.progressScore) < 0.7;
       });
 
       data = behind.map(g => ({
@@ -63,9 +63,9 @@ export class AIService {
         employee: g.employee.name,
         department: g.employee.department?.name,
         status: g.status,
-        target: g.targetValue,
-        actual: g.actualValue,
-        score: g.checkIns[0]?.computedScore || 0,
+        target: g.target,
+        actual: g.updates[0]?.achievement,
+        score: g.updates[0]?.progressScore || 0,
         uomType: g.uomType
       }));
 
@@ -109,15 +109,15 @@ export class AIService {
     else if (normalized.includes('compare') || normalized.includes('quarter') || normalized.includes('qoq') || normalized.includes('trend')) {
       intent = 'COMPARISON';
 
-      const checkins = await prisma.checkIn.groupBy({
+      const updates = await prisma.quarterlyUpdate.groupBy({
         by: ['quarter'],
-        _avg: { computedScore: true },
+        _avg: { progressScore: true },
         _count: { id: true }
       });
 
-      data = checkins.map(c => ({
+      data = updates.map(c => ({
         quarter: c.quarter,
-        avgScore: Number(c._avg.computedScore || 0).toFixed(3),
+        avgScore: Number(c._avg.progressScore || 0).toFixed(3),
         checkInCount: c._count.id
       }));
 
@@ -136,7 +136,7 @@ export class AIService {
         const members = await prisma.user.findMany({
           where: { managerId: userId },
           include: {
-            goals: { include: { checkIns: { orderBy: { checkInDate: 'desc' }, take: 1 } } }
+            goals: { include: { updates: { orderBy: { updatedAt: 'desc' }, take: 1 } } }
           }
         });
 
@@ -144,7 +144,7 @@ export class AIService {
           const goals = m.goals;
           const completed = goals.filter(g => g.status === 'COMPLETED').length;
           const scores = goals
-            .map(g => g.checkIns[0]?.computedScore)
+            .map(g => g.updates[0]?.progressScore)
             .filter((s) => s != null)
             .map(s => Number(s));
           const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
@@ -169,27 +169,27 @@ export class AIService {
 
       const goals = await prisma.goal.findMany({
         where: {
-          categoryType: 'MANUFACTURING',
+          thrustArea: 'MANUFACTURING',
           ...(role === 'MANAGER' ? { employee: { managerId: userId } } : 
               role === 'EMPLOYEE' ? { employeeId: userId } : {})
         },
         include: {
           employee: { select: { name: true } },
-          checkIns: { orderBy: { checkInDate: 'desc' }, take: 1 }
+          updates: { orderBy: { updatedAt: 'desc' }, take: 1 }
         }
       });
 
       data = goals.map(g => ({
         title: g.title,
         employee: g.employee.name,
-        target: g.targetValue,
-        actual: g.actualValue,
+        target: g.target,
+        actual: g.updates[0]?.achievement,
         status: g.status,
-        score: g.checkIns[0]?.computedScore || 0
+        score: g.updates[0]?.progressScore || 0
       }));
 
       const behind = goals.filter(g => {
-        const score = Number(g.checkIns[0]?.computedScore || 0);
+        const score = Number(g.updates[0]?.progressScore || 0);
         return score < 0.7 && g.status !== 'COMPLETED';
       });
 
@@ -203,23 +203,23 @@ export class AIService {
 
       const goals = await prisma.goal.findMany({
         where: {
-          categoryType: 'B2B',
+          thrustArea: 'B2B',
           ...(role === 'MANAGER' ? { employee: { managerId: userId } } : 
               role === 'EMPLOYEE' ? { employeeId: userId } : {})
         },
         include: {
           employee: { select: { name: true } },
-          checkIns: { orderBy: { checkInDate: 'desc' }, take: 1 }
+          updates: { orderBy: { updatedAt: 'desc' }, take: 1 }
         }
       });
 
       data = goals.map(g => ({
         title: g.title,
         employee: g.employee.name,
-        target: g.targetValue,
-        actual: g.actualValue,
+        target: g.target,
+        actual: g.updates[0]?.achievement,
         status: g.status,
-        score: g.checkIns[0]?.computedScore || 0
+        score: g.updates[0]?.progressScore || 0
       }));
 
       summary = `🏭 B2B Sales Goals: ${goals.length} active goals. Energy savings and deployment targets tracked.`;
